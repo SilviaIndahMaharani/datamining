@@ -1,16 +1,5 @@
-<?php
-// Koneksi ke database
-include 'koneksi.php'; // Menghubungkan ke file koneksi
-
-// Query untuk mengambil data jenis layanan
-$queryJenisLayanan = "SELECT id, nama_jenis_layanan FROM jenis_layanan ORDER BY nama_jenis_layanan ASC";
-$resultJenisLayanan = mysqli_query($koneksi, $queryJenisLayanan);
-
-// Cek apakah query berhasil
-if (!$resultJenisLayanan) {
-    die("Query jenis layanan gagal: " . mysqli_error($koneksi));
-}
-?>
+<?php include 'get_kategori.php'; // Ambil query kategori ?>
+<?php include 'get_layanan.php'; // Ambil query kategori ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -473,10 +462,19 @@ $koneksi->close();
                             ?>
                         </select>
                     </div>
-          <div class="mb-3">
-              <label for="kategori" class="form-label">Kategori</label>
-              <input type="text" class="form-control" id="kategori" name="kategori" required>
-          </div>
+                    <div class="mb-3">
+    <label for="kategori" class="form-label">Kategori</label>
+    <select class="form-control" id="kategori" name="kategori" required>
+        <option value="" disabled selected>Pilih Kategori</option>
+        <?php
+        // Menampilkan data kategori dari database
+        while ($row = mysqli_fetch_assoc($resultKategori)) {
+            echo "<option value='" . $row['id'] . "'>" . htmlspecialchars($row['nama_kategori']) . "</option>";
+        }
+        ?>
+    </select>
+</div>
+
           <div class="mb-3">
               <label for="beratCucian" class="form-label">Berat Cucian</label>
               <input type="text" class="form-control" id="beratCucian" name="beratCucian" required>
