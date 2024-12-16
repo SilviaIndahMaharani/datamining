@@ -1,3 +1,16 @@
+<?php
+// Koneksi ke database
+include 'koneksi.php'; // Menghubungkan ke file koneksi
+
+// Query untuk mengambil data jenis layanan
+$queryJenisLayanan = "SELECT id, nama_jenis_layanan FROM jenis_layanan ORDER BY nama_jenis_layanan ASC";
+$resultJenisLayanan = mysqli_query($koneksi, $queryJenisLayanan);
+
+// Cek apakah query berhasil
+if (!$resultJenisLayanan) {
+    die("Query jenis layanan gagal: " . mysqli_error($koneksi));
+}
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -356,6 +369,23 @@ if (!$result) {
                     <th>Aksi</th>
                 </tr>
             </thead>
+            <?php
+include 'koneksi.php'; // Sambungkan ke database
+
+// Query untuk LEFT JOIN
+$query = "SELECT pemasukan.id, pemasukan.tanggal, pemasukan.nama_pelanggan, 
+                 jenis_layanan.nama_jenis_layanan AS jenis_layanan, 
+                 pemasukan.kategori, pemasukan.berat_cucian, pemasukan.harga
+          FROM pemasukan
+          LEFT JOIN jenis_layanan ON pemasukan.jenis_layanan_id = jenis_layanan.id
+          ORDER BY pemasukan.tanggal DESC";
+
+$result = mysqli_query($koneksi, $query);
+
+if (!$result) {
+    die("Query gagal: " . mysqli_error($koneksi));
+}
+?>
             <tbody>
                 <?php
                 if ($result->num_rows > 0) {
@@ -432,9 +462,17 @@ $koneksi->close();
               <input type="text" class="form-control" id="namaPelanggan" name="namaPelanggan" required>
           </div>
           <div class="mb-3">
-              <label for="jenisLayanan" class="form-label">Jenis Layanan</label>
-              <input type="text" class="form-control" id="jenisLayanan" name="jenisLayanan" required>
-          </div>
+                        <label for="jenisLayanan" class="form-label">Jenis Layanan</label>
+                        <select class="form-control" id="jenisLayanan" name="jenisLayanan" required>
+                            <option value="" disabled selected>Pilih Jenis Layanan</option>
+                            <?php
+                            // Menampilkan data jenis layanan dari database
+                            while ($row = mysqli_fetch_assoc($resultJenisLayanan)) {
+                                echo "<option value='" . $row['id'] . "'>" . htmlspecialchars($row['nama_jenis_layanan']) . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
           <div class="mb-3">
               <label for="kategori" class="form-label">Kategori</label>
               <input type="text" class="form-control" id="kategori" name="kategori" required>
