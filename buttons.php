@@ -361,12 +361,14 @@ if (!$result) {
             <?php
 include 'koneksi.php'; // Sambungkan ke database
 
-// Query untuk LEFT JOIN
+// Query untuk LEFT JOIN tabel pemasukan, jenis_layanan, dan kategori
 $query = "SELECT pemasukan.id, pemasukan.tanggal, pemasukan.nama_pelanggan, 
                  jenis_layanan.nama_jenis_layanan AS jenis_layanan, 
-                 pemasukan.kategori, pemasukan.berat_cucian, pemasukan.harga
+                 kategori.nama_kategori AS kategori, 
+                 pemasukan.berat_cucian, pemasukan.harga
           FROM pemasukan
           LEFT JOIN jenis_layanan ON pemasukan.jenis_layanan_id = jenis_layanan.id
+          LEFT JOIN kategori ON pemasukan.kategori = kategori.id
           ORDER BY pemasukan.tanggal DESC";
 
 $result = mysqli_query($koneksi, $query);
@@ -374,6 +376,12 @@ $result = mysqli_query($koneksi, $query);
 if (!$result) {
     die("Query gagal: " . mysqli_error($koneksi));
 }
+
+// Query untuk dropdown kategori
+$resultKategori = mysqli_query($koneksi, "SELECT id, nama_kategori FROM kategori");
+
+// Query untuk dropdown jenis layanan
+$resultJenisLayanan = mysqli_query($koneksi, "SELECT id, nama_jenis_layanan FROM jenis_layanan");
 ?>
             <tbody>
                 <?php
@@ -463,17 +471,16 @@ $koneksi->close();
                         </select>
                     </div>
                     <div class="mb-3">
-    <label for="kategori" class="form-label">Kategori</label>
-    <select class="form-control" id="kategori" name="kategori" required>
-        <option value="" disabled selected>Pilih Kategori</option>
-        <?php
-        // Menampilkan data kategori dari database
-        while ($row = mysqli_fetch_assoc($resultKategori)) {
-            echo "<option value='" . $row['id'] . "'>" . htmlspecialchars($row['nama_kategori']) . "</option>";
-        }
-        ?>
-    </select>
-</div>
+                            <label for="kategori" class="form-label">Kategori</label>
+                            <select class="form-control" id="kategori" name="kategori" required>
+                                <option value="" disabled selected>Pilih Kategori</option>
+                                <?php
+                                while ($row = mysqli_fetch_assoc($resultKategori)) {
+                                    echo "<option value='" . $row['id'] . "'>" . htmlspecialchars($row['nama_kategori']) . "</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
 
           <div class="mb-3">
               <label for="beratCucian" class="form-label">Berat Cucian</label>
@@ -530,7 +537,15 @@ $koneksi->close();
             
             
             <!-- End of Main Content -->
-<!-- Footer -->
+
+            
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+ <!-- Footer -->
 <footer class="sticky-footer bg-white">
     <div class="container my-auto">
         <div class="copyright text-center my-auto">
@@ -539,14 +554,6 @@ $koneksi->close();
     </div>
 </footer>
 <!-- End of Footer -->
-            
-
-        </div>
-        <!-- End of Content Wrapper -->
-
-    </div>
-    <!-- End of Page Wrapper -->
- 
 
             
 
