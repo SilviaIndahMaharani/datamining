@@ -359,19 +359,19 @@ if (!$result) {
                 </tr>
             </thead>
             <?php
-include 'koneksi.php'; // Sambungkan ke database
+include 'koneksi.php'; // Koneksi ke database
 
 // Query untuk LEFT JOIN tabel pemasukan, jenis_layanan, dan kategori
 $query = "SELECT pemasukan.id, pemasukan.tanggal, pemasukan.nama_pelanggan, 
                  jenis_layanan.nama_jenis_layanan AS jenis_layanan, 
                  jenis_layanan.harga_satuan,  -- Tambahkan kolom harga_satuan
                  kategori.nama_kategori AS kategori, 
-                 pemasukan.berat_cucian, pemasukan.harga
+                 pemasukan.berat_cucian, 
+                 (pemasukan.berat_cucian * jenis_layanan.harga_satuan) AS harga -- Perhitungan harga
           FROM pemasukan
           LEFT JOIN jenis_layanan ON pemasukan.jenis_layanan_id = jenis_layanan.id
           LEFT JOIN kategori ON pemasukan.kategori = kategori.id
           ORDER BY pemasukan.tanggal DESC";
-
 
 $result = mysqli_query($koneksi, $query);
 
