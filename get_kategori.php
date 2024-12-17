@@ -1,11 +1,23 @@
 <?php
-include 'koneksi.php'; // Sambungkan ke database
+include 'koneksi.php';
 
-// Query untuk mengambil data kategori
-$queryKategori = "SELECT id, nama_kategori FROM kategori ORDER BY nama_kategori ASC";
-$resultKategori = mysqli_query($koneksi, $queryKategori);
+if (isset($_GET['jenis_layanan_id'])) {
+    $jenis_layanan_id = intval($_GET['jenis_layanan_id']);
 
-if (!$resultKategori) {
-    die("Query kategori gagal: " . mysqli_error($koneksi));
+    $query = "
+        SELECT kategori.id AS kategori_id, kategori.nama_kategori, jenis_layanan_kategori.harga
+        FROM jenis_layanan_kategori
+        JOIN kategori ON jenis_layanan_kategori.kategori_id = kategori.id
+        WHERE jenis_layanan_kategori.jenis_layanan_id = $jenis_layanan_id
+    ";
+
+    $result = mysqli_query($koneksi, $query);
+
+    $data = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+    }
+
+    echo json_encode($data);
 }
 ?>

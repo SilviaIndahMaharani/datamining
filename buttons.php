@@ -462,7 +462,7 @@ $koneksi->close();
           </div>
           <div class="mb-3">
                         <label for="jenisLayanan" class="form-label">Jenis Layanan</label>
-                        <select class="form-control" id="jenisLayanan" name="jenisLayanan" onchange="ambilHargaSatuan(this.value)">
+                        <select class="form-control" id="jenisLayanan" name="jenisLayanan" onchange="filterKategoriByLayanan()">
     <option value="" disabled selected>Pilih Jenis Layanan</option>
     <?php
     while ($row = mysqli_fetch_assoc($resultJenisLayanan)) {
@@ -470,6 +470,7 @@ $koneksi->close();
     }
     ?>
 </select>
+
 
                     </div>
                     <div class="mb-3">
@@ -492,10 +493,11 @@ $koneksi->close();
                             <label for="hargaSatuan" class="form-label">Harga Satuan</label>
                             <input type="text" class="form-control" id="hargaSatuan" name="hargaSatuan" readonly>
                         </div>
-          <div class="mb-3">
-              <label for="harga" class="form-label">Harga</label>
-              <input type="number" class="form-control" id="harga" name="harga" required>
-          </div>
+                        <div class="mb-3">
+    <label for="harga" class="form-label">Harga</label>
+    <input type="number" class="form-control" id="harga" name="harga" readonly>
+</div>
+
           <button type="button" class="btn btn-secondary" onclick="redirectToCards()">Tutup</button>
           <button type="submit" class="btn btn-primary">Simpan Data</button>
         </form>
@@ -547,6 +549,44 @@ $koneksi->close();
         })
         .catch(error => console.error('Error:', error));
 }
+
+function filterKategoriByLayanan() {
+    var jenisLayananId = document.getElementById('jenisLayanan').value;
+
+    fetch('get_kategori_by_layanan.php?jenis_layanan_id=' + jenisLayananId)
+        .then(response => response.json())
+        .then(data => {
+            var kategoriSelect = document.getElementById('kategori');
+            kategoriSelect.innerHTML = "<option value='' disabled selected>Pilih Kategori</option>";
+
+            data.forEach(function (kategori) {
+                var option = document.createElement('option');
+                option.value = kategori.id;
+                option.setAttribute('data-harga', kategori.harga); // Simpan harga dalam atribut data
+                option.textContent = kategori.nama_kategori;
+                kategoriSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching kategori:', error));
+}
+
+// Event listener untuk dropdown kategori
+document.getElementById('kategori').addEventListener('change', function () {
+    var jenisLayananId = document.getElementById('jenisLayanan').value;
+    var kategoriId = this.value;
+
+    // Ambil harga kombinasi dari server
+    fetch('get_harga_kombinasi.php?jenis_layanan_id=' + jenisLayananId + '&kategori_id=' + kategoriId)
+        .then(response => response.json())
+        .then(data => {
+            // Tampilkan harga di input Harga
+            document.getElementById('harga').value = data.harga;
+        })
+        .catch(error => console.error('Error fetching harga kombinasi:', error));
+});
+
+
+
 </script>
 
             
