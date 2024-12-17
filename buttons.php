@@ -364,12 +364,14 @@ include 'koneksi.php'; // Sambungkan ke database
 // Query untuk LEFT JOIN tabel pemasukan, jenis_layanan, dan kategori
 $query = "SELECT pemasukan.id, pemasukan.tanggal, pemasukan.nama_pelanggan, 
                  jenis_layanan.nama_jenis_layanan AS jenis_layanan, 
+                 jenis_layanan.harga_satuan,  -- Tambahkan kolom harga_satuan
                  kategori.nama_kategori AS kategori, 
                  pemasukan.berat_cucian, pemasukan.harga
           FROM pemasukan
           LEFT JOIN jenis_layanan ON pemasukan.jenis_layanan_id = jenis_layanan.id
           LEFT JOIN kategori ON pemasukan.kategori = kategori.id
           ORDER BY pemasukan.tanggal DESC";
+
 
 $result = mysqli_query($koneksi, $query);
 
@@ -460,15 +462,15 @@ $koneksi->close();
           </div>
           <div class="mb-3">
                         <label for="jenisLayanan" class="form-label">Jenis Layanan</label>
-                        <select class="form-control" id="jenisLayanan" name="jenisLayanan" required>
-                            <option value="" disabled selected>Pilih Jenis Layanan</option>
-                            <?php
-                            // Menampilkan data jenis layanan dari database
-                            while ($row = mysqli_fetch_assoc($resultJenisLayanan)) {
-                                echo "<option value='" . $row['id'] . "'>" . htmlspecialchars($row['nama_jenis_layanan']) . "</option>";
-                            }
-                            ?>
-                        </select>
+                        <select class="form-control" id="jenisLayanan" name="jenisLayanan" onchange="ambilHargaSatuan(this.value)">
+    <option value="" disabled selected>Pilih Jenis Layanan</option>
+    <?php
+    while ($row = mysqli_fetch_assoc($resultJenisLayanan)) {
+        echo "<option value='" . $row['id'] . "'>" . htmlspecialchars($row['nama_jenis_layanan']) . "</option>";
+    }
+    ?>
+</select>
+
                     </div>
                     <div class="mb-3">
                             <label for="kategori" class="form-label">Kategori</label>
@@ -486,6 +488,10 @@ $koneksi->close();
               <label for="beratCucian" class="form-label">Berat Cucian</label>
               <input type="text" class="form-control" id="beratCucian" name="beratCucian" required>
           </div>
+          <div class="mb-3">
+                            <label for="hargaSatuan" class="form-label">Harga Satuan</label>
+                            <input type="text" class="form-control" id="hargaSatuan" name="hargaSatuan" readonly>
+                        </div>
           <div class="mb-3">
               <label for="harga" class="form-label">Harga</label>
               <input type="number" class="form-control" id="harga" name="harga" required>
@@ -532,6 +538,15 @@ $koneksi->close();
   function redirectToCards() {
             window.location.href = "buttons.php"; // Ganti sesuai nama halaman tujuan
         }
+
+        function ambilHargaSatuan(idLayanan) {
+    fetch('get_harga_satuan.php?id=' + idLayanan)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('hargaSatuan').value = data.harga_satuan;
+        })
+        .catch(error => console.error('Error:', error));
+}
 </script>
 
             
