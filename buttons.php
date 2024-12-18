@@ -354,7 +354,8 @@ if (!$result) {
                     <th>Jenis Layanan</th>
                     <th>Kategori</th>
                     <th>Berat Cucian</th>
-                    <th>Harga</th>
+                    <th>Harga Satuan (Rp)</th>
+                    <th>Total Harga (Rp)</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -364,14 +365,15 @@ include 'koneksi.php'; // Koneksi ke database
 // Query untuk LEFT JOIN tabel pemasukan, jenis_layanan, dan kategori
 $query = "SELECT pemasukan.id, pemasukan.tanggal, pemasukan.nama_pelanggan, 
                  jenis_layanan.nama_jenis_layanan AS jenis_layanan, 
-                 jenis_layanan.harga_satuan,  -- Tambahkan kolom harga_satuan
+                 jenis_layanan.harga_satuan,  
                  kategori.nama_kategori AS kategori, 
                  pemasukan.berat_cucian, 
-                 (pemasukan.berat_cucian * jenis_layanan.harga_satuan) AS harga -- Perhitungan harga
+                 (pemasukan.berat_cucian * jenis_layanan.harga_satuan) AS total_harga 
           FROM pemasukan
           LEFT JOIN jenis_layanan ON pemasukan.jenis_layanan_id = jenis_layanan.id
           LEFT JOIN kategori ON pemasukan.kategori = kategori.id
           ORDER BY pemasukan.tanggal DESC";
+
 
 $result = mysqli_query($koneksi, $query);
 
@@ -397,7 +399,8 @@ $resultJenisLayanan = mysqli_query($koneksi, "SELECT id, nama_jenis_layanan FROM
                         echo "<td>" . htmlspecialchars($row['jenis_layanan']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['kategori']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['berat_cucian']) . " KG</td>";
-                        echo "<td>Rp. " . number_format($row['harga'], 0, ',', '.') . "</td>";
+                        echo "<td>Rp. " . number_format($row['harga_satuan'], 0, ',', '.') . "</td>";
+                        echo "<td>Rp. " . number_format($row['total_harga'], 0, ',', '.') . "</td>"; // Menampilkan total harga
                         echo "<td>
                             <button onclick=\"editData(" . $row['id'] . ")\" style=\"background: none; border: none; cursor: pointer;\">
                                 <i class=\"bi bi-pencil-square\" style=\"margin-right: 10px;\"></i>
@@ -490,12 +493,12 @@ $koneksi->close();
               <input type="text" class="form-control" id="beratCucian" name="beratCucian" required>
           </div>
           <div class="mb-3">
-                            <label for="hargaSatuan" class="form-label">Harga Satuan</label>
-                            <input type="text" class="form-control" id="hargaSatuan" name="hargaSatuan" readonly>
-                        </div>
-                        <div class="mb-3">
-    <label for="harga" class="form-label">Harga</label>
+    <label for="harga" class="form-label">Harga satuan</label>
     <input type="number" class="form-control" id="harga" name="harga" readonly>
+</div>
+<div class="mb-3">
+    <label for="totalHarga" class="form-label">Total Harga</label>
+    <input type="number" class="form-control" id="totalHarga" name="totalHarga" readonly>
 </div>
 
           <button type="button" class="btn btn-secondary" onclick="redirectToCards()">Tutup</button>
@@ -584,6 +587,19 @@ document.getElementById('kategori').addEventListener('change', function () {
         })
         .catch(error => console.error('Error fetching harga kombinasi:', error));
 });
+
+// Fungsi untuk menghitung Total Harga
+document.getElementById('beratCucian').addEventListener('input', hitungTotalHarga);
+document.getElementById('harga').addEventListener('input', hitungTotalHarga);
+
+function hitungTotalHarga() {
+    const berat = parseFloat(document.getElementById('beratCucian').value) || 0;
+    const hargaSatuan = parseFloat(document.getElementById('harga').value) || 0;
+    const totalHarga = berat * hargaSatuan;
+
+    document.getElementById('totalHarga').value = totalHarga;
+}
+
 
 
 
