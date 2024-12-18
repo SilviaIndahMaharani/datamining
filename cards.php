@@ -69,7 +69,7 @@
                     data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Data Master: </h6>
-                        <a class="collapse-item active" href="buttons.php">Pemasukan</a>
+                        <a class="collapse-item active" href="pemasukan.php">Pemasukan</a>
                         <a class="collapse-item" href="cards.php">Pengeluaran</a>
                     </div>
                 </div>

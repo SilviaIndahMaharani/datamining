@@ -76,7 +76,7 @@
                     data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Data Master: </h6>
-                        <a class="collapse-item active" href="buttons.php">Pemasukan</a>
+                        <a class="collapse-item active" href="pemasukan.php">Pemasukan</a>
                         <a class="collapse-item" href="cards.php">Pengeluaran</a>
                     </div>
                 </div>
@@ -349,7 +349,7 @@ if (!$result) {
 <!-- HTML untuk menampilkan tabel -->
 <div class="card-body">
     <div class="table-responsive">
-        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="color: black;">
             <thead>
                 <tr>
                     <th>No</th>
@@ -684,6 +684,51 @@ $koneksi->close();
 </div>
 
 <script>
+    // Event Listener untuk Modal Edit
+document.getElementById('editBeratCucian').addEventListener('input', hitungTotalEditHarga);
+document.getElementById('editExpress').addEventListener('change', hitungTotalEditHarga);
+
+function hitungTotalEditHarga() {
+    const berat = parseFloat(document.getElementById('editBeratCucian').value) || 0; // Berat cucian
+    const hargaSatuan = parseFloat(document.getElementById('editHarga').value) || 0; // Harga satuan
+    const isExpress = document.getElementById('editExpress').checked; // Checkbox Express
+
+    // Hitung total harga
+    let totalHarga = berat * hargaSatuan;
+
+    // Jika Express dipilih, kalikan 2
+    if (isExpress) {
+        totalHarga *= 2;
+    }
+
+    // Tampilkan total harga di input Total Harga
+    document.getElementById('editTotalHarga').value = Math.round(totalHarga);
+}
+function editData(id) {
+    fetch('get_data_pemasukan.php?id=' + id)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('editId').value = id;
+            document.getElementById('editTanggal').value = data.tanggal;
+            document.getElementById('editNamaPelanggan').value = data.nama_pelanggan;
+            document.getElementById('editJenisLayanan').value = data.jenis_layanan_id;
+            document.getElementById('editKategori').value = data.kategori;
+            document.getElementById('editBeratCucian').value = data.berat_cucian;
+
+            // Set harga satuan dan total harga
+            document.getElementById('editHarga').value = Math.round(data.harga_satuan);
+            document.getElementById('editTotalHarga').value = Math.round(data.total_harga);
+            document.getElementById('editExpress').checked = data.is_express == 1;
+
+            // Jalankan hitung total harga saat modal dibuka
+            hitungTotalEditHarga();
+
+            // Tampilkan modal edit
+            $('#editDataModal').modal('show');
+        })
+        .catch(error => console.error('Error fetching data:', error));
+}
+
   // Fungsi untuk menutup form dan mengosongkan input
   function tutupForm() {
     var modal = document.getElementById('tambahDataModal');
@@ -714,7 +759,7 @@ $koneksi->close();
     return true;
   }
   function redirectToCards() {
-            window.location.href = "buttons.php"; // Ganti sesuai nama halaman tujuan
+            window.location.href = "pemasukan.php"; // Ganti sesuai nama halaman tujuan
         }
 
         function ambilHargaSatuan(idLayanan) {

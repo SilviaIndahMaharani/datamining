@@ -1,3 +1,42 @@
+<?php
+include 'koneksi.php'; // Koneksi ke database
+
+// Query untuk menghitung total pemasukan
+$queryPemasukan = "SELECT SUM(total_harga) AS total_pemasukan FROM pemasukan";
+$resultPemasukan = mysqli_query($koneksi, $queryPemasukan);
+$totalPemasukan = ($row = mysqli_fetch_assoc($resultPemasukan)) ? $row['total_pemasukan'] : 0;
+
+// Query untuk menghitung total pengeluaran
+$queryPengeluaran = "SELECT SUM(harga) AS total_pengeluaran FROM pengeluaran";
+$resultPengeluaran = mysqli_query($koneksi, $queryPengeluaran);
+$totalPengeluaran = ($row = mysqli_fetch_assoc($resultPengeluaran)) ? $row['total_pengeluaran'] : 0;
+
+// Query untuk menghitung jumlah pelanggan unik
+$queryPelanggan = "SELECT COUNT(DISTINCT nama_pelanggan) AS total_pelanggan FROM pemasukan";
+$resultPelanggan = mysqli_query($koneksi, $queryPelanggan);
+$totalPelanggan = ($row = mysqli_fetch_assoc($resultPelanggan)) ? $row['total_pelanggan'] : 0;
+
+// Query untuk data pemasukan bulanan
+$queryPemasukanBulanan = "SELECT MONTH(tanggal) AS bulan, SUM(total_harga) AS total_pemasukan 
+                          FROM pemasukan WHERE YEAR(tanggal) = YEAR(CURDATE()) 
+                          GROUP BY MONTH(tanggal) ORDER BY bulan";
+$resultPemasukanBulanan = mysqli_query($koneksi, $queryPemasukanBulanan);
+$pemasukanBulanan = array_fill(0, 12, 0);
+while ($row = mysqli_fetch_assoc($resultPemasukanBulanan)) {
+    $pemasukanBulanan[$row['bulan'] - 1] = (int)$row['total_pemasukan'];
+}
+
+// Query untuk data pengeluaran bulanan
+$queryPengeluaranBulanan = "SELECT MONTH(tanggal) AS bulan, SUM(harga) AS total_pengeluaran 
+                            FROM pengeluaran WHERE YEAR(tanggal) = YEAR(CURDATE()) 
+                            GROUP BY MONTH(tanggal) ORDER BY bulan";
+$resultPengeluaranBulanan = mysqli_query($koneksi, $queryPengeluaranBulanan);
+$pengeluaranBulanan = array_fill(0, 12, 0);
+while ($row = mysqli_fetch_assoc($resultPengeluaranBulanan)) {
+    $pengeluaranBulanan[$row['bulan'] - 1] = (int)$row['total_pengeluaran'];
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,13 +52,11 @@
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body id="page-top">
@@ -67,7 +104,7 @@
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Data Master:</h6>
-                        <a class="collapse-item" href="buttons.php">Pemasukan</a>
+                        <a class="collapse-item" href="pemasukan.php">Pemasukan</a>
                         <a class="collapse-item" href="cards.php">Pengeluaran</a>
                     </div>
                 </div>
@@ -158,123 +195,6 @@
                             </div>
                         </li>
 
-                        <!-- Nav Item - Alerts -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-bell fa-fw"></i>
-                                <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter"></span>
-                            </a>
-                            <!-- Dropdown - Alerts -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="alertsDropdown">
-                                <h6 class="dropdown-header">
-                                    Alerts Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-primary">
-                                            <i class="fas fa-file-alt text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 12, 2019</div>
-                                        <span class="font-weight-bold">A new monthly report is ready to download!</span>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-success">
-                                            <i class="fas fa-donate text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 7, 2019</div>
-                                        $290.29 has been deposited into your account!
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-warning">
-                                            <i class="fas fa-exclamation-triangle text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 2, 2019</div>
-                                        Spending Alert: We've noticed unusually high spending for your account.
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
-                            </div>
-                        </li>
-
-                        <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-envelope fa-fw"></i>
-                                <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter"></span>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="messagesDropdown">
-                                <h6 class="dropdown-header">
-                                    Message Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_1.svg"
-                                            alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div class="font-weight-bold">
-                                        <div class="text-truncate">Hi there! I am wondering if you can help me with a
-                                            problem I've been having.</div>
-                                        <div class="small text-gray-500">Emily Fowler · 58m</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_2.svg"
-                                            alt="...">
-                                        <div class="status-indicator"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">I have the photos that you ordered last month, how
-                                            would you like them sent to you?</div>
-                                        <div class="small text-gray-500">Jae Chun · 1d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_3.svg"
-                                            alt="...">
-                                        <div class="status-indicator bg-warning"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Last month's report looks great, I am very happy with
-                                            the progress so far, keep up the good work!</div>
-                                        <div class="small text-gray-500">Morgan Alvarez · 2d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="https://source.unsplash.com/Mv9hjnEUHR4/60x60"
-                                            alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Am I a good boy? The reason I ask is because someone
-                                            told me that people say this to all dogs, even if they aren't good...</div>
-                                        <div class="small text-gray-500">Chicken the Dog · 2w</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
-                            </div>
-                        </li>
-
                         <div class="topbar-divider d-none d-sm-block"></div>
 
                         <!-- Nav Item - User Information -->
@@ -322,24 +242,7 @@
                         <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                                 class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
                     </div>
-                    <?php
-include 'koneksi.php'; // Koneksi ke database
-
-// Query untuk menghitung total pemasukan
-$queryPemasukan = "SELECT SUM(total_harga) AS total_pemasukan FROM pemasukan";
-$resultPemasukan = mysqli_query($koneksi, $queryPemasukan);
-$totalPemasukan = ($row = mysqli_fetch_assoc($resultPemasukan)) ? $row['total_pemasukan'] : 0;
-
-// Query untuk menghitung total pengeluaran
-$queryPengeluaran = "SELECT SUM(harga) AS total_pengeluaran FROM pengeluaran";
-$resultPengeluaran = mysqli_query($koneksi, $queryPengeluaran);
-$totalPengeluaran = ($row = mysqli_fetch_assoc($resultPengeluaran)) ? $row['total_pengeluaran'] : 0;
-
-// Query untuk menghitung jumlah pelanggan unik
-$queryPelanggan = "SELECT COUNT(DISTINCT nama_pelanggan) AS total_pelanggan FROM pemasukan";
-$resultPelanggan = mysqli_query($koneksi, $queryPelanggan);
-$totalPelanggan = ($row = mysqli_fetch_assoc($resultPelanggan)) ? $row['total_pelanggan'] : 0;
-?>
+                  
                     <!-- Content Row -->
                     <div class="row">
 
@@ -399,110 +302,66 @@ $totalPelanggan = ($row = mysqli_fetch_assoc($resultPelanggan)) ? $row['total_pe
                         </div>
                     </div>
 
-                    <!-- Content Row -->
-<div class="row">
-    <!-- Grafik Line Chart -->
-    <div class="col-lg-6 col-md-12">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Grafik Pemasukan Bulanan</h6>
+                    <!-- Grafik -->
+        <div class="row">
+            <!-- Grafik Pemasukan -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header font-weight-bold">Grafik Pemasukan Bulanan</div>
+                    <div class="card-body">
+                        <canvas id="pemasukanChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <canvas id="myAreaChart"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Grafik Bar Chart -->
-    <div class="col-lg-6 col-md-12">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Grafik Pengeluaran Bulanan (Bar)</h6>
-            </div>
-            <div class="card-body">
-                <canvas id="myBarChart"></canvas>
+            <!-- Grafik Pengeluaran -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header font-weight-bold">Grafik Pengeluaran Bulanan (Bar)</div>
+                    <div class="card-body">
+                        <canvas id="pengeluaranChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Add Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<!-- Chart JS -->
 <script>
-    // Data dummy untuk grafik Line
-    var ctxLine = document.getElementById('myAreaChart').getContext('2d');
-    var myLineChart = new Chart(ctxLine, {
-        type: 'line', // Jenis grafik Line
-        data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], // Label bulan
-            datasets: [{
-                label: "Pemasukan",
-                data: [5000, 10000, 8000, 15000, 12000, 20000, 18000, 25000, 22000, 27000, 23000, 30000], // Data dummy
-                borderColor: "rgba(78, 115, 223, 1)", // Warna garis grafik
-                backgroundColor: "rgba(78, 115, 223, 0.2)", // Warna latar belakang area grafik
-                fill: true, // Mengisi area di bawah grafik
-                tension: 0.3, // Kelengkungan garis
-            }]
-        },
-        options: {
-            responsive: true, // Responsif
-            scales: {
-                x: {
-                    beginAtZero: true
-                },
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        // Format nilai pada sumbu Y dengan tanda "Rp" dan pemisah ribuan
-                        callback: function(value) {
-                            return 'Rp ' + value.toLocaleString(); // Format angka dengan tanda titik
-                        }
-                    }
-                }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return "Rp " + tooltipItem.raw.toLocaleString(); // Format angka dengan tanda titik
-                        }
-                    }
-                }
-            }
-        }
-    });
+        var pemasukanData = <?php echo json_encode(array_values($pemasukanBulanan)); ?>;
+        var pengeluaranData = <?php echo json_encode(array_values($pengeluaranBulanan)); ?>;
 
-    // Data dummy untuk grafik Bar
-    var ctxBar = document.getElementById('myBarChart').getContext('2d');
-    var myBarChart = new Chart(ctxBar, {
-        type: 'bar', // Menggunakan bar chart
-        data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-            datasets: [{
-                label: "Pemasukan",
-                data: [5000, 10000, 8000, 15000, 12000, 20000, 18000, 25000, 22000, 27000, 23000, 30000],
-                backgroundColor: "rgba(78, 115, 223, 0.6)", // Warna bar
-                borderColor: "rgba(78, 115, 223, 1)", // Warna border
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        // Format nilai pada sumbu Y dengan tanda "Rp" dan pemisah ribuan
-                        callback: function(value) {
-                            return 'Rp ' + value.toLocaleString(); // Format angka dengan tanda titik
-                        }
-                    }
-                }
+        // Grafik Line Pemasukan
+        new Chart(document.getElementById('pemasukanChart'), {
+            type: 'line',
+            data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                datasets: [{
+                    label: "Pemasukan",
+                    data: pemasukanData,
+                    borderColor: "rgba(78, 115, 223, 1)",
+                    backgroundColor: "rgba(78, 115, 223, 0.2)",
+                    fill: true,
+                    tension: 0.3
+                }]
             }
-        }
-    });
-</script>
+        });
+
+        // Grafik Bar Pengeluaran
+        new Chart(document.getElementById('pengeluaranChart'), {
+            type: 'bar',
+            data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                datasets: [{
+                    label: "Pengeluaran",
+                    data: pengeluaranData,
+                    backgroundColor: "rgba(78, 115, 223, 0.6)",
+                    borderColor: "rgba(78, 115, 223, 1)",
+                    borderWidth: 1
+                }]
+            }
+        });
+    </script>
+
 
 
     <!-- Bootstrap core JavaScript-->

@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($stmt->execute()) {
         echo "Data berhasil disimpan!";
-        header("Location: buttons.php");
+        header("Location: pemasukan.php");
         exit();
     } else {
         echo "Error: " . $stmt->error;
