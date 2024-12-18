@@ -447,8 +447,9 @@ $koneksi->close();
 
 <!-- Modal Form untuk Tambah Data -->
 <div class="modal fade" id="tambahDataModal" tabindex="-1" aria-labelledby="tambahDataModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
+    <div style="background-color: #007bff; height: 5px;"></div>
       <div class="modal-header">
         <h5 class="modal-title" id="tambahDataModalLabel">Tambah Data Pemasukan</h5>
         <button type="button" style="background: none; border: none; cursor: pointer;" onclick="tutupForm()">
@@ -458,6 +459,8 @@ $koneksi->close();
       <div class="modal-body">
         <!-- Form Input -->
         <form action="simpan_data.php" method="POST" onsubmit="return validasiForm()">
+        <div class="row">
+        <div class="col-md-6">
           <div class="mb-3">
               <label for="tanggal" class="form-label">Tanggal</label>
               <input type="date" class="form-control" id="tanggal" name="tanggal" required>
@@ -466,6 +469,7 @@ $koneksi->close();
               <label for="namaPelanggan" class="form-label">Nama Pelanggan</label>
               <input type="text" class="form-control" id="namaPelanggan" name="namaPelanggan" required>
           </div>
+          
           <div class="mb-3">
                         <label for="jenisLayanan" class="form-label">Jenis Layanan</label>
                         <select class="form-control" id="jenisLayanan" name="jenisLayanan" onchange="filterKategoriByLayanan()">
@@ -476,9 +480,11 @@ $koneksi->close();
     }
     ?>
 </select>
+          </div>
+</div>
 
-
-                    </div>
+                   
+                    <div class="col-md-6">
                     <div class="mb-3">
                             <label for="kategori" class="form-label">Kategori</label>
                             <select class="form-control" id="kategori" name="kategori" required>
@@ -491,30 +497,37 @@ $koneksi->close();
                             </select>
                         </div>
                         <div class="mb-3">
-    <label class="form-label">
-        <input type="checkbox" id="express" name="express" value="1"> Layanan Express (2x Harga)
-    </label>
-</div>
+                            <label class="form-label">
+                            <input type="checkbox" id="express" name="express" value="1"> Layanan Express (2x Harga)
+                            </label>
+                        </div>
 
 
           <div class="mb-3">
               <label for="beratCucian" class="form-label">Berat Cucian</label>
               <input type="text" class="form-control" id="beratCucian" name="beratCucian" required>
           </div>
+          <div class="col-md-6 offset-md-6">
           <div class="mb-3">
     <label for="harga" class="form-label">Harga satuan</label>
     <input type="number" class="form-control" id="harga" name="harga" readonly>
 </div>
+
 <div class="mb-3">
     <label for="totalHarga" class="form-label">Total Harga</label>
-    <input type="number" class="form-control" id="totalHarga" name="totalHarga" readonly>
+    <input type="number" class="form-control"  id="totalHarga" name="totalHarga" readonly 
+    style="border: 1px solid green; background-color:rgb(208, 237, 219); color: green ;">
 </div>
-
+</div>
+</div>
+</div>
+<div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="redirectToCards()">Tutup</button>
           <button type="submit" class="btn btn-primary">Simpan Data</button>
         </form>
       </div>
     </div>
+  </div>
   </div>
 </div>
 </div>
