@@ -322,7 +322,24 @@
                         <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                                 class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
                     </div>
+                    <?php
+include 'koneksi.php'; // Koneksi ke database
 
+// Query untuk menghitung total pemasukan
+$queryPemasukan = "SELECT SUM(total_harga) AS total_pemasukan FROM pemasukan";
+$resultPemasukan = mysqli_query($koneksi, $queryPemasukan);
+$totalPemasukan = ($row = mysqli_fetch_assoc($resultPemasukan)) ? $row['total_pemasukan'] : 0;
+
+// Query untuk menghitung total pengeluaran
+$queryPengeluaran = "SELECT SUM(harga) AS total_pengeluaran FROM pengeluaran";
+$resultPengeluaran = mysqli_query($koneksi, $queryPengeluaran);
+$totalPengeluaran = ($row = mysqli_fetch_assoc($resultPengeluaran)) ? $row['total_pengeluaran'] : 0;
+
+// Query untuk menghitung jumlah pelanggan unik
+$queryPelanggan = "SELECT COUNT(DISTINCT nama_pelanggan) AS total_pelanggan FROM pemasukan";
+$resultPelanggan = mysqli_query($koneksi, $queryPelanggan);
+$totalPelanggan = ($row = mysqli_fetch_assoc($resultPelanggan)) ? $row['total_pelanggan'] : 0;
+?>
                     <!-- Content Row -->
                     <div class="row">
 
@@ -334,7 +351,7 @@
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                                 Pemasukan</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp. 86.000</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">Rp. <?php echo number_format($totalPemasukan, 0, ',', '.'); ?></div>
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -352,7 +369,7 @@
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                                 Pengeluaran</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp. 210.000</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">Rp. <?php echo number_format($totalPengeluaran, 0, ',', '.'); ?></div>
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -371,7 +388,7 @@
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                                 PELANGGAN</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">5</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $totalPelanggan; ?></div>
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-comments fa-2x text-gray-300"></i>
