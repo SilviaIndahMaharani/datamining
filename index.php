@@ -1,35 +1,57 @@
 <?php
 include 'koneksi.php'; // Koneksi ke database
 
-// Query untuk menghitung total pemasukan
+// Query total pemasukan
 $queryPemasukan = "SELECT SUM(total_harga) AS total_pemasukan FROM pemasukan";
 $resultPemasukan = mysqli_query($koneksi, $queryPemasukan);
 $totalPemasukan = ($row = mysqli_fetch_assoc($resultPemasukan)) ? $row['total_pemasukan'] : 0;
 
-// Query untuk menghitung total pengeluaran
+// Query total pengeluaran
 $queryPengeluaran = "SELECT SUM(harga) AS total_pengeluaran FROM pengeluaran";
 $resultPengeluaran = mysqli_query($koneksi, $queryPengeluaran);
 $totalPengeluaran = ($row = mysqli_fetch_assoc($resultPengeluaran)) ? $row['total_pengeluaran'] : 0;
 
-// Query untuk menghitung jumlah pelanggan unik
+// Query pelanggan
 $queryPelanggan = "SELECT COUNT(DISTINCT nama_pelanggan) AS total_pelanggan FROM pemasukan";
 $resultPelanggan = mysqli_query($koneksi, $queryPelanggan);
 $totalPelanggan = ($row = mysqli_fetch_assoc($resultPelanggan)) ? $row['total_pelanggan'] : 0;
 
-// Query untuk data pemasukan bulanan
+// Query pemasukan harian
+$queryPemasukanHarian = "SELECT DATE(tanggal) AS tanggal, SUM(total_harga) AS total_harian 
+                         FROM pemasukan 
+                         WHERE MONTH(tanggal) = MONTH(CURDATE()) 
+                         GROUP BY DATE(tanggal)";
+$resultPemasukanHarian = mysqli_query($koneksi, $queryPemasukanHarian);
+$pemasukanHarian = [];
+while ($row = mysqli_fetch_assoc($resultPemasukanHarian)) {
+    $pemasukanHarian[$row['tanggal']] = $row['total_harian'];
+}
+
+// Query pengeluaran harian
+$queryPengeluaranHarian = "SELECT DATE(tanggal) AS tanggal, SUM(harga) AS total_harian 
+                           FROM pengeluaran 
+                           WHERE MONTH(tanggal) = MONTH(CURDATE()) 
+                           GROUP BY DATE(tanggal)";
+$resultPengeluaranHarian = mysqli_query($koneksi, $queryPengeluaranHarian);
+$pengeluaranHarian = [];
+while ($row = mysqli_fetch_assoc($resultPengeluaranHarian)) {
+    $pengeluaranHarian[$row['tanggal']] = $row['total_harian'];
+}
+
+// Query pemasukan bulanan
 $queryPemasukanBulanan = "SELECT MONTH(tanggal) AS bulan, SUM(total_harga) AS total_pemasukan 
                           FROM pemasukan WHERE YEAR(tanggal) = YEAR(CURDATE()) 
-                          GROUP BY MONTH(tanggal) ORDER BY bulan";
+                          GROUP BY MONTH(tanggal)";
 $resultPemasukanBulanan = mysqli_query($koneksi, $queryPemasukanBulanan);
 $pemasukanBulanan = array_fill(0, 12, 0);
 while ($row = mysqli_fetch_assoc($resultPemasukanBulanan)) {
     $pemasukanBulanan[$row['bulan'] - 1] = (int)$row['total_pemasukan'];
 }
 
-// Query untuk data pengeluaran bulanan
+// Query pengeluaran bulanan
 $queryPengeluaranBulanan = "SELECT MONTH(tanggal) AS bulan, SUM(harga) AS total_pengeluaran 
                             FROM pengeluaran WHERE YEAR(tanggal) = YEAR(CURDATE()) 
-                            GROUP BY MONTH(tanggal) ORDER BY bulan";
+                            GROUP BY MONTH(tanggal)";
 $resultPengeluaranBulanan = mysqli_query($koneksi, $queryPengeluaranBulanan);
 $pengeluaranBulanan = array_fill(0, 12, 0);
 while ($row = mysqli_fetch_assoc($resultPengeluaranBulanan)) {
@@ -302,31 +324,96 @@ while ($row = mysqli_fetch_assoc($resultPengeluaranBulanan)) {
                         </div>
                     </div>
 
-                    <!-- Grafik -->
-        <div class="row">
-            <!-- Grafik Pemasukan -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow">
-                    <div class="card-header font-weight-bold">Grafik Pemasukan Bulanan</div>
-                    <div class="card-body">
-                        <canvas id="pemasukanChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <!-- Grafik Pengeluaran -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow">
-                    <div class="card-header font-weight-bold">Grafik Pengeluaran Bulanan (Bar)</div>
-                    <div class="card-body">
-                        <canvas id="pengeluaranChart"></canvas>
-                    </div>
-                </div>
+                 <!-- Grafik Harian -->
+<div class="row">
+    <!-- Grafik Pemasukan Harian -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header font-weight-bold">Grafik Pemasukan Harian</div>
+            <div class="card-body">
+                <canvas id="pemasukanHarianChart"></canvas>
             </div>
         </div>
     </div>
+    <!-- Grafik Pengeluaran Harian -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header font-weight-bold">Grafik Pengeluaran Harian</div>
+            <div class="card-body">
+                <canvas id="pengeluaranHarianChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- Grafik Bulanan -->
+<div class="row">
+    <!-- Grafik Pemasukan Bulanan -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header font-weight-bold">Grafik Pemasukan Bulanan</div>
+            <div class="card-body">
+                <canvas id="pemasukanChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <!-- Grafik Pengeluaran Bulanan -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header font-weight-bold">Grafik Pengeluaran Bulanan (Bar)</div>
+            <div class="card-body">
+                <canvas id="pengeluaranChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script Chart JS -->
+<script>
+    // Data Pemasukan Harian
+    var pemasukanLabels = <?php echo json_encode(array_keys($pemasukanHarian)); ?>;
+    var pemasukanData = <?php echo json_encode(array_values($pemasukanHarian)); ?>;
+
+    // Grafik Pemasukan Harian
+    new Chart(document.getElementById('pemasukanHarianChart'), {
+        type: 'line',
+        data: {
+            labels: pemasukanLabels,
+            datasets: [{
+                label: 'Total Harga (Rp)',
+                data: pemasukanData,
+                borderColor: 'rgb(23, 177, 56)',
+                backgroundColor: 'rgba(144, 252, 180, 0.2)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    // Data Pengeluaran Harian
+    var pengeluaranLabels = <?php echo json_encode(array_keys($pengeluaranHarian)); ?>;
+    var pengeluaranData = <?php echo json_encode(array_values($pengeluaranHarian)); ?>;
+
+    // Grafik Pengeluaran Harian
+    new Chart(document.getElementById('pengeluaranHarianChart'), {
+        type: 'bar',
+        data: {
+            labels: pengeluaranLabels,
+            datasets: [{
+                label: 'Total Pengeluaran (Rp)',
+                data: pengeluaranData,
+                backgroundColor: 'rgba(255, 77, 116, 0.6)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: { responsive: true }
+    });
+</script>
 <!-- Chart JS -->
 <script>
+    
         var pemasukanData = <?php echo json_encode(array_values($pemasukanBulanan)); ?>;
         var pengeluaranData = <?php echo json_encode(array_values($pengeluaranBulanan)); ?>;
 
@@ -338,8 +425,8 @@ while ($row = mysqli_fetch_assoc($resultPengeluaranBulanan)) {
                 datasets: [{
                     label: "Pemasukan",
                     data: pemasukanData,
-                    borderColor: "rgba(78, 115, 223, 1)",
-                    backgroundColor: "rgba(78, 115, 223, 0.2)",
+                    borderColor: "rgb(173, 87, 223)",
+                    backgroundColor: "rgba(213, 134, 255, 0.2)",
                     fill: true,
                     tension: 0.3
                 }]
@@ -354,8 +441,8 @@ while ($row = mysqli_fetch_assoc($resultPengeluaranBulanan)) {
                 datasets: [{
                     label: "Pengeluaran",
                     data: pengeluaranData,
-                    backgroundColor: "rgba(78, 115, 223, 0.6)",
-                    borderColor: "rgba(78, 115, 223, 1)",
+                    backgroundColor: "rgba(255, 0, 21, 0.6)",
+                    borderColor: "rgb(212, 105, 105)",
                     borderWidth: 1
                 }]
             }
