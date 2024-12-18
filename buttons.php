@@ -353,9 +353,11 @@ if (!$result) {
                     <th>Nama Pelanggan</th>
                     <th>Jenis Layanan</th>
                     <th>Kategori</th>
+                    
                     <th>Berat Cucian</th>
                     <th>Harga Satuan (Rp)</th>
                     <th>Total Harga (Rp)</th>
+                    <th>Layanan Express</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -364,15 +366,15 @@ include 'koneksi.php'; // Koneksi ke database
 
 // Query untuk LEFT JOIN tabel pemasukan, jenis_layanan, dan kategori
 $query = "SELECT pemasukan.id, pemasukan.tanggal, pemasukan.nama_pelanggan, 
-       jenis_layanan.nama_jenis_layanan AS jenis_layanan, 
-       kategori.nama_kategori AS kategori, 
-       pemasukan.berat_cucian, pemasukan.harga AS harga_satuan, 
-       pemasukan.total_harga
-FROM pemasukan
-LEFT JOIN jenis_layanan ON pemasukan.jenis_layanan_id = jenis_layanan.id
-LEFT JOIN kategori ON pemasukan.kategori = kategori.id
-ORDER BY pemasukan.tanggal DESC;
-";
+                 jenis_layanan.nama_jenis_layanan AS jenis_layanan, 
+                 kategori.nama_kategori AS kategori, 
+                 pemasukan.berat_cucian, pemasukan.harga AS harga_satuan, 
+                 pemasukan.total_harga, pemasukan.is_express
+          FROM pemasukan
+          LEFT JOIN jenis_layanan ON pemasukan.jenis_layanan_id = jenis_layanan.id
+          LEFT JOIN kategori ON pemasukan.kategori = kategori.id
+          ORDER BY pemasukan.tanggal DESC";
+
 
 
 $result = mysqli_query($koneksi, $query);
@@ -401,6 +403,7 @@ $resultJenisLayanan = mysqli_query($koneksi, "SELECT id, nama_jenis_layanan FROM
                         echo "<td>" . htmlspecialchars($row['berat_cucian']) . " KG</td>";
                         echo "<td>Rp. " . number_format($row['harga_satuan'], 0, ',', '.') . "</td>";
                         echo "<td>Rp. " . number_format($row['total_harga'], 0, ',', '.') . "</td>"; // Menampilkan total harga
+                        echo "<td>" . ($row['is_express'] ? 'Ya' : 'Tidak') . "</td>"; // Kolom Express
                         echo "<td>
                             <button onclick=\"editData(" . $row['id'] . ")\" style=\"background: none; border: none; cursor: pointer;\">
                                 <i class=\"bi bi-pencil-square\" style=\"margin-right: 10px;\"></i>
@@ -595,16 +598,31 @@ document.getElementById('kategori').addEventListener('change', function () {
 });
 
 // Fungsi untuk menghitung Total Harga
+// Event listener untuk setiap perubahan pada input berat cucian, harga satuan, dan checkbox express
+// Event listener untuk setiap perubahan input
 document.getElementById('beratCucian').addEventListener('input', hitungTotalHarga);
 document.getElementById('harga').addEventListener('input', hitungTotalHarga);
+document.getElementById('express').addEventListener('change', hitungTotalHarga);
 
 function hitungTotalHarga() {
-    const berat = parseFloat(document.getElementById('beratCucian').value) || 0;
-    const hargaSatuan = parseFloat(document.getElementById('harga').value) || 0;
-    const totalHarga = berat * hargaSatuan;
+    const berat = parseFloat(document.getElementById('beratCucian').value) || 0; // Ambil berat cucian
+    const hargaSatuan = parseFloat(document.getElementById('harga').value) || 0; // Ambil harga satuan
+    const isExpress = document.getElementById('express').checked; // Cek checkbox Express
 
-    document.getElementById('totalHarga').value = totalHarga;
+    // Hitung total harga
+    let totalHarga = berat * hargaSatuan;
+
+    // Jika layanan Express dipilih, kalikan 2
+    if (isExpress) {
+        totalHarga *= 2;
+    }
+
+    // Tampilkan total harga tanpa desimal
+    document.getElementById('totalHarga').value = Math.round(totalHarga);
 }
+
+
+
 
 
 
