@@ -15,6 +15,10 @@
     <title>LAUNDRY MBAH US</title>
 
     <!-- Custom fonts for this template-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
@@ -405,7 +409,7 @@ $resultJenisLayanan = mysqli_query($koneksi, "SELECT id, nama_jenis_layanan FROM
                         echo "<td>Rp. " . number_format($row['total_harga'], 0, ',', '.') . "</td>"; // Menampilkan total harga
                         echo "<td>" . ($row['is_express'] ? 'Ya' : 'Tidak') . "</td>"; // Kolom Express
                         echo "<td>
-                            <button onclick=\"editData(" . $row['id'] . ")\" style=\"background: none; border: none; cursor: pointer;\">
+                             <button onclick=\"editData('" . $row['id'] . "')\" style=\"background: none; border: none; cursor: pointer;\">
                                 <i class=\"bi bi-pencil-square\" style=\"margin-right: 10px;\"></i>
                             </button>
                             <button onclick=\"hapusData(" . $row['id'] . ")\" style=\"background: none; border: none; cursor: pointer;\">
@@ -424,11 +428,77 @@ $resultJenisLayanan = mysqli_query($koneksi, "SELECT id, nama_jenis_layanan FROM
 </div>
 
 <script>
-  // Fungsi untuk mengedit data
-  function editData(id) {
-    // Redirect ke halaman edit (sesuaikan dengan URL edit data Anda)
-    window.location.href = 'edit_pemasukan.php?id=' + id;
-  }
+    document.getElementById('editBeratCucian').addEventListener('input', hitungTotalEditHarga);
+document.getElementById('editExpress').addEventListener('change', hitungTotalEditHarga);
+
+function hitungTotalEditHarga() {
+    const berat = parseFloat(document.getElementById('editBeratCucian').value) || 0; // Berat cucian
+    const hargaSatuan = parseFloat(document.getElementById('editHarga').value) || 0; // Harga satuan
+    const isExpress = document.getElementById('editExpress').checked; // Layanan Express
+
+    // Hitung total harga
+    let totalHarga = berat * hargaSatuan;
+
+    // Jika express dipilih, kalikan 2
+    if (isExpress) {
+        totalHarga *= 2;
+    }
+
+    // Tampilkan total harga di input
+    document.getElementById('editTotalHarga').value = Math.round(totalHarga);
+}
+
+   // Fungsi untuk menampilkan modal edit data
+   function editData(id) {
+    fetch('get_data_pemasukan.php?id=' + id)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('editId').value = id;
+            document.getElementById('editTanggal').value = data.tanggal;
+            document.getElementById('editNamaPelanggan').value = data.nama_pelanggan;
+            document.getElementById('editJenisLayanan').value = data.jenis_layanan_id;
+            document.getElementById('editKategori').value = data.kategori;
+            document.getElementById('editBeratCucian').value = data.berat_cucian;
+
+            // Format harga satuan dan total harga
+            document.getElementById('editHarga').value = Math.round(data.harga_satuan);
+            document.getElementById('editTotalHarga').value = Math.round(data.total_harga);
+            document.getElementById('editExpress').checked = data.is_express == 1;
+
+            // Jalankan perhitungan ulang saat modal pertama kali dibuka
+            hitungTotalEditHarga();
+
+            // Tampilkan modal edit
+            $('#editDataModal').modal('show');
+        })
+        .catch(error => console.error('Error fetching data:', error));
+}
+
+
+
+
+    // Fungsi untuk menyimpan perubahan data
+    function simpanEditData() {
+        const formData = new FormData(document.getElementById('editDataForm'));
+
+        fetch('update_pemasukan.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(result => {
+            alert(result);
+            location.reload(); // Refresh halaman setelah update
+        })
+        .catch(error => console.error('Error updating data:', error));
+
+        return false; // Mencegah submit form secara default
+    }
+
+    // Fungsi untuk menutup modal edit
+    function tutupEditForm() {
+        $('#editDataModal').modal('hide');
+    }
 
   // Fungsi untuk menghapus data
   function hapusData(id) {
@@ -530,6 +600,87 @@ $koneksi->close();
   </div>
   </div>
 </div>
+</div>
+<!-- Modal Form untuk Edit Data -->
+<div class="modal fade" id="editDataModal" tabindex="-1" aria-labelledby="editDataModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div style="background-color: #007bff; height: 5px;"></div>
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDataModalLabel">Edit Data Pemasukan</h5>
+                <button type="button" style="background: none; border: none; cursor: pointer;" onclick="tutupEditForm()">
+                    <i class="bi bi-x-lg" aria-label="Close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form Input -->
+                <form id="editDataForm" onsubmit="return simpanEditData()">
+                    <input type="hidden" id="editId" name="id"> <!-- Input Hidden untuk ID -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editTanggal" class="form-label">Tanggal</label>
+                                <input type="date" class="form-control" id="editTanggal" name="tanggal" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editNamaPelanggan" class="form-label">Nama Pelanggan</label>
+                                <input type="text" class="form-control" id="editNamaPelanggan" name="namaPelanggan" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editJenisLayanan" class="form-label">Jenis Layanan</label>
+                                <select class="form-control" id="editJenisLayanan" name="jenisLayanan" onchange="filterKategoriByLayananEdit()" required>
+                                    <option value="" disabled selected>Pilih Jenis Layanan</option>
+                                    <?php
+                                    mysqli_data_seek($resultJenisLayanan, 0);
+                                    while ($row = mysqli_fetch_assoc($resultJenisLayanan)) {
+                                        echo "<option value='" . $row['id'] . "'>" . htmlspecialchars($row['nama_jenis_layanan']) . "</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editKategori" class="form-label">Kategori</label>
+                                <select class="form-control" id="editKategori" name="kategori" required>
+                                    <option value="" disabled selected>Pilih Kategori</option>
+                                    <?php
+                                    mysqli_data_seek($resultKategori, 0);
+                                    while ($row = mysqli_fetch_assoc($resultKategori)) {
+                                        echo "<option value='" . $row['id'] . "'>" . htmlspecialchars($row['nama_kategori']) . "</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <input type="checkbox" id="editExpress" name="express" value="1"> Layanan Express (2x Harga)
+                                </label>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editBeratCucian" class="form-label">Berat Cucian</label>
+                                <input type="text" class="form-control" id="editBeratCucian" name="beratCucian" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editHarga" class="form-label">Harga Satuan</label>
+                                <input type="number" class="form-control" id="editHarga" name="harga" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editTotalHarga" class="form-label">Total Harga</label>
+                                <input type="number" class="form-control" id="editTotalHarga" name="totalHarga" readonly
+                                    style="border: 1px solid green; background-color:rgb(208, 237, 219); color: green;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="tutupEditForm()">Tutup</button>
+                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
