@@ -364,15 +364,15 @@ include 'koneksi.php'; // Koneksi ke database
 
 // Query untuk LEFT JOIN tabel pemasukan, jenis_layanan, dan kategori
 $query = "SELECT pemasukan.id, pemasukan.tanggal, pemasukan.nama_pelanggan, 
-                 jenis_layanan.nama_jenis_layanan AS jenis_layanan, 
-                 jenis_layanan.harga_satuan,  
-                 kategori.nama_kategori AS kategori, 
-                 pemasukan.berat_cucian, 
-                 (pemasukan.berat_cucian * jenis_layanan.harga_satuan) AS total_harga 
-          FROM pemasukan
-          LEFT JOIN jenis_layanan ON pemasukan.jenis_layanan_id = jenis_layanan.id
-          LEFT JOIN kategori ON pemasukan.kategori = kategori.id
-          ORDER BY pemasukan.tanggal DESC";
+       jenis_layanan.nama_jenis_layanan AS jenis_layanan, 
+       kategori.nama_kategori AS kategori, 
+       pemasukan.berat_cucian, pemasukan.harga AS harga_satuan, 
+       pemasukan.total_harga
+FROM pemasukan
+LEFT JOIN jenis_layanan ON pemasukan.jenis_layanan_id = jenis_layanan.id
+LEFT JOIN kategori ON pemasukan.kategori = kategori.id
+ORDER BY pemasukan.tanggal DESC;
+";
 
 
 $result = mysqli_query($koneksi, $query);
@@ -487,6 +487,12 @@ $koneksi->close();
                                 ?>
                             </select>
                         </div>
+                        <div class="mb-3">
+    <label class="form-label">
+        <input type="checkbox" id="express" name="express" value="1"> Layanan Express (2x Harga)
+    </label>
+</div>
+
 
           <div class="mb-3">
               <label for="beratCucian" class="form-label">Berat Cucian</label>

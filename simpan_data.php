@@ -1,37 +1,40 @@
 <?php
 include 'koneksi.php'; // Menyertakan file koneksi
 
-// Memeriksa apakah data POST dikirim
+// Periksa apakah metode POST digunakan
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Mengambil data dari formulir
+    // Ambil data dari formulir
     $tanggal = $_POST['tanggal'];
     $namaPelanggan = $_POST['namaPelanggan'];
-    $jenisLayanan = $_POST['jenisLayanan']; // ID jenis layanan dari dropdown
-    $kategori = $_POST['kategori'];
-    $beratCucian = $_POST['beratCucian'];
-    $harga = $_POST['harga'];
+    $jenisLayanan = intval($_POST['jenisLayanan']); // ID jenis layanan
+    $kategori = intval($_POST['kategori']);
+    $beratCucian = floatval($_POST['beratCucian']);
+    $harga = floatval($_POST['harga']);
 
-    // Memvalidasi input (opsional, misalnya untuk membersihkan input dari karakter khusus atau memeriksa tipe data)
-    $tanggal = mysqli_real_escape_string($koneksi, $tanggal);
-    $namaPelanggan = mysqli_real_escape_string($koneksi, $namaPelanggan);
-    $jenisLayanan = mysqli_real_escape_string($koneksi, $jenisLayanan); // ID jenis layanan
-    $kategori = mysqli_real_escape_string($koneksi, $kategori);
-    $beratCucian = mysqli_real_escape_string($koneksi, $beratCucian);
-    $harga = mysqli_real_escape_string($koneksi, $harga);
+    // Hitung total harga
+    $totalHarga = $beratCucian * $harga;
 
-    // Query untuk menyimpan data ke dalam tabel pemasukan
-    $sql = "INSERT INTO pemasukan (tanggal, nama_pelanggan, jenis_layanan_id, kategori, berat_cucian, harga) 
-            VALUES ('$tanggal', '$namaPelanggan', '$jenisLayanan', '$kategori', '$beratCucian', '$harga')";
-
-    if ($koneksi->query($sql) === TRUE) {
-        echo "Data berhasil disimpan!";
-        header("Location: buttons.php"); // Arahkan kembali ke halaman setelah simpan
-        exit(); // Pastikan eksekusi berhenti setelah header redirect
-    } else {
-        echo "Error: " . $sql . "<br>" . $koneksi->error;
+    // Validasi input
+    if (!$tanggal || !$namaPelanggan || !$jenisLayanan || !$kategori || !$beratCucian || !$harga) {
+        die("Error: Semua field wajib diisi!");
     }
 
-    // Menutup koneksi
+    // Query menggunakan Prepared Statements
+    $stmt = $koneksi->prepare("INSERT INTO pemasukan (tanggal, nama_pelanggan, jenis_layanan_id, kategori, berat_cucian, harga, total_harga) 
+                               VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssiiidd", $tanggal, $namaPelanggan, $jenisLayanan, $kategori, $beratCucian, $harga, $totalHarga);
+
+    // Eksekusi query
+    if ($stmt->execute()) {
+        echo "Data berhasil disimpan!";
+        header("Location: buttons.php"); // Redirect setelah simpan
+        exit();
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+
+    // Tutup statement dan koneksi
+    $stmt->close();
     $koneksi->close();
 }
 ?>
