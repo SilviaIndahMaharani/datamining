@@ -22,12 +22,12 @@ $resultPemasukan = mysqli_query($koneksi, $queryPemasukan);
 $totalPemasukan = ($row = mysqli_fetch_assoc($resultPemasukan)) ? $row['total_pemasukan'] : 0;
 
 // Query total pengeluaran
-$queryPengeluaran = "SELECT SUM(harga) AS total_pengeluaran FROM pengeluaran";
+$queryPengeluaran = "SELECT SUM(jumlah*harga) AS total_pengeluaran FROM pengeluaran";
 $resultPengeluaran = mysqli_query($koneksi, $queryPengeluaran);
 $totalPengeluaran = ($row = mysqli_fetch_assoc($resultPengeluaran)) ? $row['total_pengeluaran'] : 0;
 
 // Query pelanggan
-$queryPelanggan = "SELECT COUNT(DISTINCT nama_pelanggan) AS total_pelanggan FROM pemasukan";
+$queryPelanggan = "SELECT COUNT(id) AS total_pelanggan FROM pemasukan";
 $resultPelanggan = mysqli_query($koneksi, $queryPelanggan);
 $totalPelanggan = ($row = mysqli_fetch_assoc($resultPelanggan)) ? $row['total_pelanggan'] : 0;
 

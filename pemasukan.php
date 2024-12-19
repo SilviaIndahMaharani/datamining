@@ -213,7 +213,7 @@ if (isset($_SESSION['user_id'])) {
 
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Tabel Pengeluaran</h1>
+    <h1 class="h3 mb-0 text-gray-800">Tabel Pemasukan</h1>
     <!-- Tombol Generate Report -->
     <a href="#" onclick="generateReport()" class="btn btn-sm btn-primary shadow-sm">
         <i class="fas fa-download fa-sm text-white-50"></i> Generate Report
@@ -808,7 +808,7 @@ function generateReport() {
         // Buat halaman cetak
         var originalContents = document.body.innerHTML;
         document.body.innerHTML = "<html><head><title>Generate Report</title></head><body>" + 
-                                  "<h2 style='text-align:center;'>Laporan Pengeluaran</h2>" + 
+                                  "<h2 style='text-align:center;'>Laporan Pemasukan</h2>" + 
                                   printContents + "</body></html>";
 
         // Cetak halaman

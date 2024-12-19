@@ -230,16 +230,18 @@ if (isset($_SESSION['user_id'])) {
                     <th>Tanggal</th>
                     <th>Kategori</th>
                     <th>Jumlah</th>
-                    <th>Harga (Rp)</th>
+                    <th>Harga Satuan (Rp)</th>
+                    <th>Total Harga (Rp)</th>
                     <th>Keterangan</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-            include 'koneksi.php';
+                include 'koneksi.php';
+
                 // Query untuk mengambil data pengeluaran
-                $sql = "SELECT * FROM pengeluaran";
+                $sql = "SELECT *, (jumlah * harga) AS total_harga FROM pengeluaran";
                 $result = $koneksi->query($sql);
 
                 // Menampilkan data jika ada
@@ -252,20 +254,21 @@ if (isset($_SESSION['user_id'])) {
                         echo "<td>" . htmlspecialchars($row['kategori']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['jumlah']) . " </td>";
                         echo "<td>Rp. " . number_format($row['harga'], 0, ',', '.') . "</td>";
+                        echo "<td>Rp. " . number_format($row['total_harga'], 0, ',', '.') . "</td>";
                         echo "<td>" . htmlspecialchars($row['keterangan']) . "</td>";
                         echo "<td>
                              <button type=\"button\" class=\"btn btn-sm btn-primary\" onclick='showEditModal(" . json_encode($row) . ")'>
                                 <i class=\"bi bi-pencil-square\" style=\"margin-right: 10px;\"></i> Edit
                             </button>
-                <!-- Tombol Hapus -->
-                <button onclick=\"hapusData(" . $row['id'] . ")\" style=\"background: none; border: none; cursor: pointer;\">
-                    <i class=\"bi bi-trash3-fill\" style=\"color: red;\"></i>
-                </button>
+                             <!-- Tombol Hapus -->
+                             <button onclick=\"hapusData(" . $row['id'] . ")\" style=\"background: none; border: none; cursor: pointer;\">
+                                <i class=\"bi bi-trash3-fill\" style=\"color: red;\"></i>
+                            </button>
                         </td>";
                         echo "</tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='7' class='text-center'>Data tidak ditemukan</td></tr>";
+                    echo "<tr><td colspan='8' class='text-center'>Data tidak ditemukan</td></tr>";
                 }
 
                 // Menutup koneksi
@@ -274,6 +277,8 @@ if (isset($_SESSION['user_id'])) {
             </tbody>
         </table>
     </div>
+</div>
+            </div>
 </div>
 
 <!-- Modal Form untuk Tambah Data -->
