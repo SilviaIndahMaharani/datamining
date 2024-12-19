@@ -1,3 +1,20 @@
+<?php
+include 'koneksi.php';
+
+session_start(); // Memulai session
+
+// Cek apakah session sudah terinisialisasi dan data pengguna ada
+if (isset($_SESSION['user_id'])) {
+    // Ambil data pengguna dari session
+    $first_name = $_SESSION['first_name'];
+    $last_name = $_SESSION['last_name'];
+    $email = $_SESSION['email'];
+} else {
+    // Jika belum login, arahkan ke halaman login
+    header("Location: login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,6 +38,7 @@
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link rel="icon" href="washing-machine.png" type="image/x-icon">
 
 </head>
 
@@ -33,7 +51,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="dashboard.php">
                 <div class="sidebar-brand-icon rotate-n-10">
                     <img src="washing-machine.png" alt="Washing Machine" style="width: 40px; height: 40px;">
                 </div>
@@ -45,7 +63,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="index.php">
+                <a class="nav-link" href="dashboard.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
@@ -70,7 +88,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Data Master: </h6>
                         <a class="collapse-item active" href="pemasukan.php">Pemasukan</a>
-                        <a class="collapse-item" href="cards.php">Pengeluaran</a>
+                        <a class="collapse-item" href="pengeluaran.php">Pengeluaran</a>
                     </div>
                 </div>
             </li>
@@ -84,7 +102,7 @@
 
         <!-- Nav Item - Charts -->
         <li class="nav-item">
-            <a class="nav-link" href="charts.html">
+            <a class="nav-link" href="logout.php">
                 <i class="bi bi-person-fill-slash"></i>
                 <span>Sign Out</span></a>
         </li>
@@ -157,150 +175,22 @@
                             </div>
                         </li>
 
-                        <!-- Nav Item - Alerts -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-bell fa-fw"></i>
-                                <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter"></span>
-                            </a>
-                            <!-- Dropdown - Alerts -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="alertsDropdown">
-                                <h6 class="dropdown-header">
-                                    Alerts Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-primary">
-                                            <i class="fas fa-file-alt text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 12, 2019</div>
-                                        <span class="font-weight-bold">A new monthly report is ready to download!</span>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-success">
-                                            <i class="fas fa-donate text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 7, 2019</div>
-                                        $290.29 has been deposited into your account!
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-warning">
-                                            <i class="fas fa-exclamation-triangle text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 2, 2019</div>
-                                        Spending Alert: We've noticed unusually high spending for your account.
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
-                            </div>
-                        </li>
-
-                        <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-envelope fa-fw"></i>
-                                <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter"></span>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="messagesDropdown">
-                                <h6 class="dropdown-header">
-                                    Message Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_1.svg"
-                                            alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div class="font-weight-bold">
-                                        <div class="text-truncate">Hi there! I am wondering if you can help me with a
-                                            problem I've been having.</div>
-                                        <div class="small text-gray-500">Emily Fowler · 58m</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_2.svg"
-                                            alt="...">
-                                        <div class="status-indicator"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">I have the photos that you ordered last month, how
-                                            would you like them sent to you?</div>
-                                        <div class="small text-gray-500">Jae Chun · 1d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_3.svg"
-                                            alt="...">
-                                        <div class="status-indicator bg-warning"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Last month's report looks great, I am very happy with
-                                            the progress so far, keep up the good work!</div>
-                                        <div class="small text-gray-500">Morgan Alvarez · 2d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="https://source.unsplash.com/Mv9hjnEUHR4/60x60"
-                                            alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Am I a good boy? The reason I ask is because someone
-                                            told me that people say this to all dogs, even if they aren't good...</div>
-                                        <div class="small text-gray-500">Chicken the Dog · 2w</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
-                            </div>
-                        </li>
+                        
 
                         <div class="topbar-divider d-none d-sm-block"></div>
 
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Mbah Us</span>
-                                <img class="img-profile rounded-circle"
-                                    src="img/undraw_profile.svg">
-                            </a>
-                            <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Settings
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
-                                </a>
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $first_name . ' ' . $last_name; ?></span>
+                            <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
+                        </a>
+
+                            <!-- Dropdown Menu -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                <a class="dropdown-item" href="logout.php">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Logout
                                 </a>
@@ -315,8 +205,13 @@
 <div class="container-fluid">
 
     <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-2 text-gray-800">Tabel Pengeluaran</h1>
-
+    <!-- Tombol Generate Report -->
+    <a href="#" onclick="generateReport()" class="btn btn-sm btn-primary shadow-sm">
+        <i class="fas fa-download fa-sm text-white-50"></i> Generate Report
+    </a>
+    </div>
     <!-- DataTales Example -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
@@ -328,7 +223,7 @@
         
         <div class="card-body">
     <div class="table-responsive">
-        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="color:black">
             <thead>
                 <tr>
                     <th>No</th>
@@ -355,14 +250,13 @@
                         echo "<td>" . $no++ . "</td>";
                         echo "<td>" . date('d-m-Y', strtotime($row['tanggal'])) . "</td>";
                         echo "<td>" . htmlspecialchars($row['kategori']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['jumlah']) . " Kg</td>";
+                        echo "<td>" . htmlspecialchars($row['jumlah']) . " </td>";
                         echo "<td>Rp. " . number_format($row['harga'], 0, ',', '.') . "</td>";
                         echo "<td>" . htmlspecialchars($row['keterangan']) . "</td>";
                         echo "<td>
-                             <button onclick=\"window.location.href='edit_pengeluaran.php?id=" . $row['id'] . "'\" style=\"background: none; border: none; cursor: pointer;\">
-                    <i class=\"bi bi-pencil-square\" style=\"margin-right: 10px; color: blue;\"></i>
-                </button>
-                
+                             <button type=\"button\" class=\"btn btn-sm btn-primary\" onclick='showEditModal(" . json_encode($row) . ")'>
+                                <i class=\"bi bi-pencil-square\" style=\"margin-right: 10px;\"></i> Edit
+                            </button>
                 <!-- Tombol Hapus -->
                 <button onclick=\"hapusData(" . $row['id'] . ")\" style=\"background: none; border: none; cursor: pointer;\">
                     <i class=\"bi bi-trash3-fill\" style=\"color: red;\"></i>
@@ -428,9 +322,53 @@
 
             </div>
             </div>
+            <div class="modal fade" id="editDataModal" tabindex="-1" aria-labelledby="editDataModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDataModalLabel">Edit Data Pengeluaran</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form Edit -->
+                <form action="edit_pengeluaran.php" method="POST" id="editForm">
+                    <input type="hidden" id="editId" name="id">
+                    <div class="mb-3">
+                        <label for="editTanggal" class="form-label">Tanggal</label>
+                        <input type="date" class="form-control" id="editTanggal" name="tanggal" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editKategori" class="form-label">Kategori</label>
+                        <input type="text" class="form-control" id="editKategori" name="kategori" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editJumlah" class="form-label">Jumlah</label>
+                        <input type="text" class="form-control" id="editJumlah" name="jumlah" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editHarga" class="form-label">Harga (Rp)</label>
+                        <input type="text" class="form-control" id="editHarga" name="harga" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editKeterangan" class="form-label">Keterangan</label>
+                        <input type="text" class="form-control" id="editKeterangan" name="keterangan" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
             <script>
    function redirectToCards() {
-            window.location.href = "cards.php"; // Ganti sesuai nama halaman tujuan
+            window.location.href = "pengeluaran.php"; // Ganti sesuai nama halaman tujuan
         }
         function hapusData(id) {
     if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
@@ -442,6 +380,11 @@
 
             
             <!-- End of Main Content -->
+
+            
+
+        </div>
+        <!-- End of Content Wrapper -->
 <!-- Footer -->
 <footer class="sticky-footer bg-white">
     <div class="container my-auto">
@@ -451,11 +394,6 @@
     </div>
 </footer>
 <!-- End of Footer -->
-            
-
-        </div>
-        <!-- End of Content Wrapper -->
-
     </div>
     <!-- End of Page Wrapper -->
  
@@ -493,6 +431,43 @@
         </div>
     </div>
     <script>
+        function showEditModal(data) {
+    // Isi form modal dengan data dari baris yang dipilih
+    document.getElementById('editId').value = data.id;
+    document.getElementById('editTanggal').value = data.tanggal;
+    document.getElementById('editKategori').value = data.kategori;
+    document.getElementById('editJumlah').value = data.jumlah;
+    document.getElementById('editHarga').value = data.harga;
+    document.getElementById('editKeterangan').value = data.keterangan;
+
+    // Tampilkan modal edit
+    $('#editDataModal').modal('show');
+}
+
+        function generateReport() {
+        // Sembunyikan kolom "Aksi" hanya saat cetak
+        var aksiColumns = document.querySelectorAll('.aksi');
+        aksiColumns.forEach(function(col) {
+            col.style.display = 'none';
+        });
+
+        // Ambil elemen tabel
+        var printContents = document.getElementById("dataTable").outerHTML;
+
+        // Buat halaman cetak
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = "<html><head><title>Generate Report</title></head><body>" + 
+                                  "<h2 style='text-align:center;'>Laporan Pengeluaran</h2>" + 
+                                  printContents + "</body></html>";
+
+        // Cetak halaman
+        window.print();
+
+        // Kembalikan tampilan kolom "Aksi" setelah cetak
+        document.body.innerHTML = originalContents;
+        location.reload(); // Refresh halaman
+    }
+
         // Fungsi untuk menampilkan modal
 function tambahData() {
     // Menampilkan modal ketika tombol "Tambah Data" diklik

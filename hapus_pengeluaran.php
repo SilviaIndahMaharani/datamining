@@ -11,12 +11,12 @@ if (isset($id) && is_numeric($id)) {
     $sql = "DELETE FROM pengeluaran WHERE id = $id";
 
     if ($koneksi->query($sql) === TRUE) {
-        echo "<script>alert('Data berhasil dihapus!'); window.location.href='cards.php';</script>";
+        echo "<script>alert('Data berhasil dihapus!'); window.location.href='pengeluaran.php';</script>";
     } else {
-        echo "<script>alert('Gagal menghapus data: " . $koneksi->error . "'); window.location.href='cards.php';</script>";
+        echo "<script>alert('Gagal menghapus data: " . $koneksi->error . "'); window.location.href='pengeluaran.php';</script>";
     }
 } else {
-    echo "<script>alert('ID tidak valid!'); window.location.href='cards.php';</script>";
+    echo "<script>alert('ID tidak valid!'); window.location.href='pengeluaran.php';</script>";
 }
 
 // Tutup koneksi

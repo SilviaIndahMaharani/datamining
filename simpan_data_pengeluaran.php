@@ -15,7 +15,7 @@ $sql = "INSERT INTO pengeluaran (tanggal, kategori, jumlah, harga, keterangan)
 
 if ($koneksi->query($sql) === TRUE) {
     echo "Data berhasil disimpan!";
-    header("Location: cards.php"); // Ganti dengan halaman yang sesuai
+    header("Location: pengeluaran.php"); // Ganti dengan halaman yang sesuai
     exit();
 } else {
     echo "Error: " . $sql . "<br>" . $koneksi->error;
